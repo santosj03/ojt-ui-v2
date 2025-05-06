@@ -45,7 +45,7 @@ export default function UserAuthForm() {
   const onSubmit = async (data: UserFormValue) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${apiBaseUrl}/api/login`, {
+      const response = await axios.post(`${apiBaseUrl}/login`, {
         username: data.username,
         password: data.password
       });
