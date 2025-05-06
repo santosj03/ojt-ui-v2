@@ -35,6 +35,7 @@ export default function UserAuthForm() {
     username: '',
     password: ''
   };
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
@@ -44,7 +45,7 @@ export default function UserAuthForm() {
   const onSubmit = async (data: UserFormValue) => {
     try {
       setLoading(true);
-      const response = await axios.post('http://127.0.0.1:8000/api/login', {
+      const response = await axios.post(`${apiBaseUrl}/api/login`, {
         username: data.username,
         password: data.password
       });

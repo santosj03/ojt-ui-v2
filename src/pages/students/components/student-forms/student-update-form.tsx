@@ -25,6 +25,7 @@ const studentFormSchema = z.object({
   designation: z.string().min(1, { message: 'Designation is required' })
 });
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 type StudentFormSchemaType = z.infer<typeof studentFormSchema>;
 
 const StudentUpdateModal = ({
@@ -64,7 +65,7 @@ const StudentUpdateModal = ({
 
     try {
       await axios.post(
-        `http://127.0.0.1:8000/api/student/update/${studentData.id}`,
+        `${apiBaseUrl}/student/update/${studentData.id}`,
         formData,
         {
           headers: {

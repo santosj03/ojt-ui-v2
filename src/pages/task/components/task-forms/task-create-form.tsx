@@ -26,6 +26,7 @@ const taskFormSchema = z.object({
 });
 
 type TaskFormSchemaType = z.infer<typeof taskFormSchema>;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const TaskCreateModal = ({ modalClose }: { modalClose: () => void }) => {
   const form = useForm<TaskFormSchemaType>({
@@ -44,7 +45,7 @@ const TaskCreateModal = ({ modalClose }: { modalClose: () => void }) => {
     };
 
     try {
-      await axios.post('http://127.0.0.1:8000/api/task/create', payload, {
+      await axios.post(`${apiBaseUrl}/task/create`, payload, {
         headers: {
           Authorization: `Bearer ${token}`
         }

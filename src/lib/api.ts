@@ -1,22 +1,6 @@
 import axios from 'axios';
 // ---------------------------- Student API ------------------------------------------------- //
-// export async function getStudents(
-//   offset: number,
-//   pageLimit: number,
-//   country: string
-// ) {
-//   try {
-//     // const res = await axios.get('http://127.0.0.1:8000/api/student/list')
-//     const res = await axios.get(
-//       `https://api.slingacademy.com/v1/sample-data/users?offset=${offset}&limit=${pageLimit}` +
-//         (country ? `&search=${country}` : '')
-//     );
-//     return res.data;
-//   } catch (error) {
-//     console.log(error);
-//     return error;
-//   }
-// }
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export async function getStudents(
   offset: number,
@@ -26,7 +10,7 @@ export async function getStudents(
   try {
     const token = localStorage.getItem('token');
     const response = await axios.get(
-      `http://127.0.0.1:8000/api/student/list?offset=${offset}&limit=${pageLimit}` +
+      `${apiBaseUrl}/student/list?offset=${offset}&limit=${pageLimit}` +
         (queryInput ? `&search=${queryInput}` : ''),
       {
         headers: {
@@ -49,7 +33,7 @@ export async function getTasks(
   try {
     const token = localStorage.getItem('token');
     const response = await axios.get(
-      `http://127.0.0.1:8000/api/task/list?offset=${offset}&limit=${pageLimit}` +
+      `${apiBaseUrl}/task/list?offset=${offset}&limit=${pageLimit}` +
         (queryInput ? `&search=${queryInput}` : ''),
       {
         headers: {
@@ -67,7 +51,7 @@ export async function getTasks(
 export async function checkAttendace(queryInput: string) {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:8000/api/student/check-attendance/${queryInput}`
+      `${apiBaseUrl}/student/check-attendance/${queryInput}`
     );
 
     return response.data;
@@ -79,7 +63,7 @@ export async function checkAttendace(queryInput: string) {
 export async function logStudent(queryInput: number) {
   try {
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/student/log-attendance/${queryInput}`
+      `${apiBaseUrl}/student/log-attendance/${queryInput}`
     );
 
     return response.data;

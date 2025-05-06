@@ -26,6 +26,7 @@ const studentFormSchema = z.object({
 });
 
 type StudentFormSchemaType = z.infer<typeof studentFormSchema>;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const StudentCreateModal = ({ modalClose }: { modalClose: () => void }) => {
   const [step, setStep] = useState<'capture' | 'form'>('capture');
@@ -53,7 +54,7 @@ const StudentCreateModal = ({ modalClose }: { modalClose: () => void }) => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://127.0.0.1:8000/api/student/create', payload, {
+      await axios.post(`${apiBaseUrl}/student/create`, payload, {
         headers: {
           Authorization: `Bearer ${token}`
         }

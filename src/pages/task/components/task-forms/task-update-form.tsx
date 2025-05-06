@@ -27,6 +27,7 @@ const taskFormSchema = z.object({
 });
 
 type TaskFormSchemaType = z.infer<typeof taskFormSchema>;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const TaskUpdateModal = ({
   taskData,
@@ -69,15 +70,11 @@ const TaskUpdateModal = ({
     };
 
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/api/task/update/${taskData.id}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      await axios.post(`${apiBaseUrl}/task/update/${taskData.id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      });
       alert('Task updated!');
       modalClose();
     } catch (err) {

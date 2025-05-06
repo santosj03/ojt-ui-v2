@@ -17,6 +17,8 @@ interface CellActionProps {
   data: Student;
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading] = useState(false);
   const [openDelete, setOpenDelete] = useState(false); // for delete modal
@@ -26,14 +28,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/student/delete/${data.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      await axios.delete(`${apiBaseUrl}/student/delete/${data.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      });
       alert('Student deleted!');
     } catch (err) {
       console.error('Error updating student:', err);

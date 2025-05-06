@@ -8,6 +8,7 @@ interface Achievement {
   score: number;
   accomplished: string;
 }
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export default function StudentAchievments() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -16,7 +17,7 @@ export default function StudentAchievments() {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          'http://127.0.0.1:8000/api/student/achievement/list',
+          `${apiBaseUrl}/student/achievement/list`,
           {
             headers: {
               Authorization: `Bearer ${token}`

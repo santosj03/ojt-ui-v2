@@ -11,6 +11,8 @@ interface Student {
   class_section: string;
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 export default function DashboardPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [contCompleted, setCountCompleted] = useState(0);
@@ -20,14 +22,11 @@ export default function DashboardPage() {
     const token = localStorage.getItem('token');
     const countStudents = async () => {
       try {
-        const response = await axios.get(
-          'http://127.0.0.1:8000/api/student/count',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const response = await axios.get(`${apiBaseUrl}/student/count`, {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
+        });
 
         setTotalStudent(response.data.data);
       } catch (error) {
@@ -38,7 +37,7 @@ export default function DashboardPage() {
     const fetchAchievements = async () => {
       try {
         const response = await axios.get(
-          'http://127.0.0.1:8000/api/student/completed-ojt/list',
+          `${apiBaseUrl}/student/completed-ojt/list`,
           {
             headers: {
               Authorization: `Bearer ${token}`
