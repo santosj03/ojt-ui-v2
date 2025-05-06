@@ -1,3 +1,4 @@
+import { Student } from '@/constants/data';
 import { NavItem } from '@/types';
 
 export const navItems: NavItem[] = [
@@ -14,10 +15,16 @@ export const navItems: NavItem[] = [
     label: 'Student'
   },
   {
-    title: 'Login',
+    title: 'Task',
+    href: '/task',
+    icon: 'kanban',
+    label: 'Task'
+  },
+  {
+    title: 'Logout',
     href: '/login',
     icon: 'login',
-    label: 'Login'
+    label: 'Logout'
   }
 ];
 
@@ -148,4 +155,25 @@ export type Employee = {
   latitude?: number; // Optional field
   job: string;
   profile_picture?: string | null; // Profile picture can be a string (URL) or null (if no picture)
+};
+
+export type Student = {
+  id: number;
+  firstname: string;
+  lastname: string;
+  class_section: string;
+  email: string;
+  gender: string;
+  designation: string;
+  total_hours: string;
+};
+
+export type Task = {
+  id: number;
+  student: Student;
+  description: string;
+  difficulty: number;
+  start_date: string;
+  end_date: string;
+  status: string;
 };

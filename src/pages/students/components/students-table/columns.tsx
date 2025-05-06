@@ -1,47 +1,37 @@
-import { Checkbox } from '@/components/ui/checkbox';
-import { Employee } from '@/constants/data';
+import { Student } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 
-export const columns: ColumnDef<Employee>[] = [
+export const columns: ColumnDef<Student>[] = [
   {
     id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
     enableSorting: false,
     enableHiding: false
   },
   {
-    accessorKey: 'first_name',
+    // accessorKey: 'firstname',
+    accessorFn: (row) => `${row.firstname} ${row.lastname}`,
     header: 'NAME'
   },
   {
-    accessorKey: 'country',
-    header: 'COUNTRY'
+    accessorKey: 'class_section',
+    header: 'CLASS'
   },
   {
     accessorKey: 'email',
     header: 'EMAIL'
   },
   {
-    accessorKey: 'job',
-    header: 'COMPANY'
-  },
-  {
     accessorKey: 'gender',
     header: 'GENDER'
+  },
+  {
+    accessorKey: 'designation',
+    header: 'DESIGNATION'
+  },
+  {
+    accessorKey: 'total_hours',
+    header: 'RENDERED Hrs'
   },
   {
     id: 'actions',

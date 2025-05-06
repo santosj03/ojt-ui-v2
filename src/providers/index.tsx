@@ -42,7 +42,7 @@ export default function AppProvider({
         <BrowserRouter>
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <QueryClientProvider client={queryClient}>
-              <ReactQueryDevtools />
+              {/* <ReactQueryDevtools /> */}
               <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                 <SidebarProvider>{children}</SidebarProvider>
               </ThemeProvider>

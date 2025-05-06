@@ -1,3 +1,6 @@
+import { useRef, useState, useEffect } from 'react';
+import Webcam from 'react-webcam';
+import * as faceapi from 'face-api.js';
 import Heading from '@/components/shared/heading';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,209 +14,189 @@ import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import axios from 'axios';
 
-const studentFormSchema = z
-  .object({
-    firstname: z
-      .string({ required_error: 'First name is required' })
-      .min(1, { message: 'firstname is should be at least 1 character' }),
-    lastname: z.string().min(1, { message: 'lastname is required' }),
-    username: z.string().min(1, { message: 'username is required' }),
-    school: z.string().min(1, { message: 'school is required' }),
-    email: z.string().email({ message: 'Enter a valid email address' }),
-    phone: z.string().min(1, { message: 'Enter a valid phone number' }),
-    password: z.string().min(1, { message: 'Password is required' }),
-    confirmPassword: z
-      .string()
-      .min(1, { message: 'Confirm Password is required' })
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords must match',
-    path: ['confirmPassword']
-  });
+const studentFormSchema = z.object({
+  firstname: z.string().min(1, { message: 'First name is required' }),
+  lastname: z.string().min(1, { message: 'Last name is required' }),
+  email: z.string().min(1, { message: 'Email is required' }),
+  class_section: z.string().min(1, { message: 'Class section is required' }),
+  gender: z.string().min(1, { message: 'Gender is required' }),
+  designation: z.string().min(1, { message: 'Designation is required' })
+});
 
 type StudentFormSchemaType = z.infer<typeof studentFormSchema>;
 
-const StudentCreateForm = ({ modalClose }: { modalClose: () => void }) => {
+const StudentCreateModal = ({ modalClose }: { modalClose: () => void }) => {
+  const [step, setStep] = useState<'capture' | 'form'>('capture');
+  const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [labeledDescriptors, setLabeledDescriptors] = useState([]);
+  const [faceMatcher, setFaceMatcher] = useState(null);
+  const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
+
   const form = useForm<StudentFormSchemaType>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: {}
   });
 
-  const onSubmit = (values: StudentFormSchemaType) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  const onSubmit = async (formData: StudentFormSchemaType) => {
+    if (!faceDescriptor) {
+      alert('Please capture a face before submitting.');
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      descriptor: faceDescriptor
+    };
+    const token = localStorage.getItem('token');
+
+    try {
+      await axios.post('http://127.0.0.1:8000/api/student/create', payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      alert('Student saved!');
+    } catch (err) {
+      console.error('Error saving student:', err);
+      alert('Error saving student. Please try again.');
+    }
+  };
+
+  // Load face-api.js models
+  useEffect(() => {
+    const loadModels = async () => {
+      const MODEL_URL = '/models';
+      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      setModelsLoaded(true);
+    };
+    loadModels();
+  }, []);
+
+  // Face registration handler
+  const handleRegisterFace = async () => {
+    if (webcamRef.current && webcamRef.current.video.readyState === 4) {
+      const video = webcamRef.current.video;
+
+      const detection = await faceapi
+        .detectSingleFace(video)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      if (detection) {
+        setFaceDescriptor(Array.from(detection.descriptor)); // convert Float32Array to number[]
+        setStep('form'); // Proceed to the form step
+      } else {
+        alert('No face detected. Try again.');
+      }
+    }
   };
 
   return (
     <div className="px-2">
-      {/* <div className="flex items-center justify-center text-2xl font-bold">
-        {'<Logo/>'}
-      </div> */}
-
-      <Heading
-        title={'Create New Student'}
-        description={''}
-        className="space-y-2 py-4 text-center"
-      />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-          autoComplete="off"
-        >
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <FormField
-              control={form.control}
-              name="firstname"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your firstname"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+      {step === 'capture' && (
+        <div className="flex flex-col items-center">
+          <Heading
+            title="Capture Student Face"
+            description="Position face in frame and register"
+            className="text-center"
+          />
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Webcam
+              ref={webcamRef}
+              audio={false}
+              screenshotFormat="image/jpeg"
+              style={{ width: 640, height: 480 }}
             />
-            <FormField
-              control={form.control}
-              name="lastname"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your lastname"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your username"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="school"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your school"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your email"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your phone"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <canvas
+              ref={canvasRef}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: 640,
+                height: 480
+              }}
             />
           </div>
-          <div className="grid grid-cols-1 gap-x-8 gap-y-4">
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your password"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your confirmPassword"
-                      {...field}
-                      className=" px-4 py-6 shadow-inner drop-shadow-xl"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              type="button"
-              variant="secondary"
-              className="rounded-full "
-              size="lg"
-              onClick={modalClose}
-            >
+          <div className="flex gap-4">
+            <Button variant="secondary" onClick={modalClose}>
               Cancel
             </Button>
-            <Button type="submit" className="rounded-full" size="lg">
-              Create Student
+            <Button onClick={handleRegisterFace} disabled={!modelsLoaded}>
+              Register Face
             </Button>
           </div>
-        </form>
-      </Form>
+        </div>
+      )}
+
+      {step === 'form' && (
+        <>
+          <Heading
+            title={'Create New Student'}
+            description={''}
+            className="space-y-2 py-4 text-center"
+          />
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              autoComplete="off"
+            >
+              <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                {[
+                  'firstname',
+                  'lastname',
+                  'email',
+                  'class_section',
+                  'gender',
+                  'designation'
+                ].map((fieldName) => (
+                  <FormField
+                    key={fieldName}
+                    control={form.control}
+                    name={fieldName as keyof StudentFormSchemaType}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder={`Enter your ${fieldName.replace('_', ' ')}`}
+                            {...field}
+                            className="px-4 py-6 shadow-inner drop-shadow-xl"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+
+              <div className="flex items-center justify-center gap-4">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="rounded-full"
+                  size="lg"
+                  onClick={modalClose}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="rounded-full" size="lg">
+                  Create Student
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </>
+      )}
     </div>
   );
 };
 
-export default StudentCreateForm;
+export default StudentCreateModal;

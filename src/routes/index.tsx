@@ -1,4 +1,5 @@
 import FormPage from '@/pages/form';
+import FaceMatcherSingle from '@/pages/macther/FaceMatcherSingle';
 import NotFound from '@/pages/not-found';
 import { Suspense, lazy } from 'react';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
@@ -9,6 +10,7 @@ const DashboardLayout = lazy(
 const SignInPage = lazy(() => import('@/pages/auth/signin'));
 const DashboardPage = lazy(() => import('@/pages/dashboard'));
 const StudentPage = lazy(() => import('@/pages/students'));
+const TaskPage = lazy(() => import('@/pages/task'));
 const StudentDetailPage = lazy(
   () => import('@/pages/students/StudentDetailPage')
 );
@@ -40,6 +42,10 @@ export default function AppRouter() {
           element: <StudentDetailPage />
         },
         {
+          path: 'task',
+          element: <TaskPage />
+        },
+        {
           path: 'form',
           element: <FormPage />
         }
@@ -51,6 +57,11 @@ export default function AppRouter() {
     {
       path: '/login',
       element: <SignInPage />,
+      index: true
+    },
+    {
+      path: '/student-login',
+      element: <FaceMatcherSingle />,
       index: true
     },
     {

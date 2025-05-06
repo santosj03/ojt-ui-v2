@@ -9,11 +9,11 @@ export default function StudentPage() {
   const [searchParams] = useSearchParams();
   const page = Number(searchParams.get('page') || 1);
   const pageLimit = Number(searchParams.get('limit') || 10);
-  const country = searchParams.get('search') || null;
+  const queryInput = searchParams.get('search') || null;
   const offset = (page - 1) * pageLimit;
-  const { data, isLoading } = useGetStudents(offset, pageLimit, country);
-  const users = data?.users;
-  const totalUsers = data?.total_users; //1000
+  const { data, isLoading } = useGetStudents(offset, pageLimit, queryInput);
+  const users = data?.data;
+  const totalUsers = data?.total_students ?? 0; //1000
   const pageCount = Math.ceil(totalUsers / pageLimit);
 
   if (isLoading) {
@@ -30,7 +30,7 @@ export default function StudentPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <PageHead title="Student Management | App" />
+      <PageHead title="OJT QR Code Based | App" />
       <Breadcrumbs
         items={[
           { title: 'Dashboard', link: '/' },
