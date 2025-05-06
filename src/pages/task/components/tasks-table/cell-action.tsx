@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Task } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
-import { useRouter } from '@/routes/hooks';
 import { useState } from 'react';
 import { UpdateModal } from './update-modal';
 import axios from 'axios';
@@ -21,7 +20,6 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading] = useState(false);
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const [openUpdate, setOpenUpdate] = useState(false); // for update modal
 
   const onConfirm = async () => {

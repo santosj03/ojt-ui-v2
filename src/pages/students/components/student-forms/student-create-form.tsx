@@ -29,11 +29,10 @@ type StudentFormSchemaType = z.infer<typeof studentFormSchema>;
 
 const StudentCreateModal = ({ modalClose }: { modalClose: () => void }) => {
   const [step, setStep] = useState<'capture' | 'form'>('capture');
-  const webcamRef = useRef(null);
+  // const webcamRef = useRef(null);
+  const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef(null);
   const [modelsLoaded, setModelsLoaded] = useState(false);
-  const [labeledDescriptors, setLabeledDescriptors] = useState([]);
-  const [faceMatcher, setFaceMatcher] = useState(null);
   const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
 
   const form = useForm<StudentFormSchemaType>({
@@ -80,9 +79,9 @@ const StudentCreateModal = ({ modalClose }: { modalClose: () => void }) => {
 
   // Face registration handler
   const handleRegisterFace = async () => {
-    if (webcamRef.current && webcamRef.current.video.readyState === 4) {
-      const video = webcamRef.current.video;
-
+    const webcam = webcamRef.current;
+    const video = webcam?.video;
+    if (video && video.readyState === 4) {
       const detection = await faceapi
         .detectSingleFace(video)
         .withFaceLandmarks()

@@ -1,13 +1,15 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import { useCheckAttendance, useLogStudent } from '../students/queries/queries';
 import { useSearchParams } from 'react-router-dom';
 
 const FaceMatcherSingle = () => {
-  const webcamRef = useRef(null);
+  const webcamRef = useRef<Webcam>(null);
   const [modelsLoaded, setModelsLoaded] = useState(false);
-  const [faceMatcher, setFaceMatcher] = useState(null);
+  const [faceMatcher, setFaceMatcher] = useState<faceapi.FaceMatcher | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [defaultTxt, setDefaultTxt] = useState('Loading student data...');
   const [hasLogged, setHasLogged] = useState(false); // Prevent duplicate log

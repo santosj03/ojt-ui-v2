@@ -1,4 +1,3 @@
-import { Student } from '@/constants/data';
 import { NavItem } from '@/types';
 
 export const navItems: NavItem[] = [

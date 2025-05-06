@@ -2,7 +2,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import Heading from '@/components/shared/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
